@@ -11,42 +11,43 @@ public class Player {
 	private final GameMain game;
 	private final Vector2 pos;
 	private float angle;
+	private final Vector2 dir;
 
 	public Player(GameMain game) {
 		this.game = game;
 		pos = new Vector2(Constants.PLAYER_POS_X, Constants.PLAYER_POS_Y);
 		angle = Constants.PLAYER_ANGLE;
+		dir = new Vector2();
 	}
 
 	public void update(float delta) {
-		float sinA = MathUtils.sin(angle);
-		float cosA = MathUtils.cos(angle);
-
 		float speed = Constants.PLAYER_SPEED * delta;
-		float speedSin = speed * sinA;
-		float speedCos = speed * cosA;
 
-		float dx = 0;
-		float dy = 0;
+		dir.setZero();
 
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			dx += speedCos;
-			dy += speedSin;
+			dir.x += 1;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-			dx += -speedCos;
-			dy += -speedSin;
+			dir.x -= 1;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			dx += speedSin;
-			dy += -speedCos;
+			dir.y -= 1;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-			dx += -speedSin;
-			dy += speedCos;
+			dir.y += 1;
 		}
 
-		checkWallCollision(dx, dy);
+		dir.rotateRad(angle).scl(speed);
+
+		if (collidesWall(pos.x + dir.x, pos.y)) {
+			dir.x = 0;
+		}
+		if (collidesWall(pos.x, pos.y + dir.y)) {
+			dir.y = 0;
+		}
+
+		pos.add(dir);
 
 		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 			angle -= Constants.PLAYER_ROT_SPEED * delta;
@@ -54,20 +55,11 @@ public class Player {
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 			angle += Constants.PLAYER_ROT_SPEED * delta;
 		}
+
 		angle %= MathUtils.PI2;
 	}
 
-	private void checkWallCollision(float dx, float dy) {
-		if (checkWall(pos.x + dx, pos.y)) {
-			dx = 0;
-		}
-		if (checkWall(pos.x, pos.y + dy)) {
-			dy = 0;
-		}
-		pos.add(dx, dy);
-	}
-
-	private boolean checkWall(float x, float y) {
+	private boolean collidesWall(float x, float y) {
 		return game.getMap().collidesWall((int) x, (int) y);
 	}
 
