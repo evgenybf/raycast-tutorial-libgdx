@@ -3,13 +3,11 @@ package com.ebf.raycast_tutorial;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.FPSLogger;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class GameMain extends ApplicationAdapter {
@@ -21,7 +19,6 @@ public class GameMain extends ApplicationAdapter {
 	private RayCasting rayCasting;
 
 	private FitViewport viewport;
-	private SpriteBatch batch;
 	private ShapeRenderer renderer;
 
 	private boolean map2dDisplayed = true;
@@ -38,7 +35,6 @@ public class GameMain extends ApplicationAdapter {
 
 		viewport = new FitViewport(Constants.WIDTH, Constants.HEIGHT, camera);
 
-		batch = new SpriteBatch();
 		renderer = new ShapeRenderer();
 		renderer.setAutoShapeType(true);
 		renderer.setProjectionMatrix(viewport.getCamera().combined);
@@ -55,8 +51,9 @@ public class GameMain extends ApplicationAdapter {
 		float delta = Gdx.graphics.getDeltaTime() * 1000;
 		player.update(delta);
 
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		ScreenUtils.clear(0, 0, 0, delta);
+//		Gdx.gl.glClearColor(0, 0, 0, 1);
+//		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		renderer.begin(ShapeType.Filled);
 
@@ -98,7 +95,6 @@ public class GameMain extends ApplicationAdapter {
 	@Override
 	public void dispose() {
 		renderer.dispose();
-		batch.dispose();
 	}
 
 	public GameMap getMap() {
