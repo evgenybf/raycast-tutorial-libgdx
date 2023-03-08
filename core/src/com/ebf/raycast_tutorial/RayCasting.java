@@ -25,7 +25,7 @@ public class RayCasting {
 
         float rayAngle = angle - Constants.HALF_FOV + 0.0001f;
 
-        for (int ray = 0; ray < Constants.NUM_RAYS; ray++) {
+        for (int ray = 0; ray < Constants.NUM_RAYS; ray++, rayAngle += Constants.DELTA_ANGLE) {
             float sinA = MathUtils.sin(rayAngle);
             float cosA = MathUtils.cos(rayAngle);
 
@@ -110,8 +110,6 @@ public class RayCasting {
                 renderer.rect(ray * Constants.SCALE, Constants.HALF_HEIGHT - MathUtils.round(proj_height / 2),
                         Constants.SCALE * 2, proj_height);
             }
-
-            rayAngle += Constants.DELTA_ANGLE;
         }
     }
 }

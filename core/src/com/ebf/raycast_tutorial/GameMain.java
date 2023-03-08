@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 public class GameMain extends ApplicationAdapter {
@@ -20,14 +20,13 @@ public class GameMain extends ApplicationAdapter {
     private Player player;
     private RayCasting rayCasting;
 
-    private FitViewport viewport;
+    private FillViewport viewport;
+    private OrthographicCamera camera;
+    private ScalingViewport viewport2;
+
     private ShapeRenderer renderer;
 
     private boolean mapDisplayed = true;
-
-    private ScalingViewport viewport2;
-
-    private OrthographicCamera camera;
 
     public GameMain() {
         fpsLogger = new FPSLogger();
@@ -38,7 +37,8 @@ public class GameMain extends ApplicationAdapter {
         camera = new OrthographicCamera();
         camera.setToOrtho(true, Constants.WIDTH, Constants.HEIGHT);
 
-        viewport = new FitViewport(Constants.WIDTH, Constants.HEIGHT, camera);
+        viewport = new FillViewport(Constants.WIDTH, Constants.HEIGHT, camera);
+
         viewport2 = new ScalingViewport(Scaling.stretch, Constants.WIDTH, Constants.HEIGHT, camera);
         viewport2.setScreenBounds(0, 0, Constants.WIDTH / 5, Constants.HEIGHT / 5);
 
@@ -72,7 +72,7 @@ public class GameMain extends ApplicationAdapter {
         // Note, that we do ray casting twice
 
         viewport2.apply();
-        renderer.setProjectionMatrix(viewport.getCamera().combined);
+        renderer.setProjectionMatrix(viewport2.getCamera().combined);
 
         renderer.begin(ShapeType.Filled);
 
