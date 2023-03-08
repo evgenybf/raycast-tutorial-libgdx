@@ -3,16 +3,13 @@ package com.ebf.raycast_tutorial;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FillViewport;
-import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class GameMain extends ApplicationAdapter {
@@ -42,8 +39,7 @@ public class GameMain extends ApplicationAdapter {
 
         viewport = new FillViewport(Constants.WIDTH, Constants.HEIGHT, camera);
 
-        minimapViewport = new MinimapViewport(Scaling.stretch, Constants.WIDTH, Constants.HEIGHT,
-                Constants.MINIMAP_WIDTH_RATIO, Constants.MINIMAP_HEIGHT_RATIO, camera);
+        minimapViewport = new FitViewport(Constants.WIDTH, Constants.HEIGHT, camera);
 
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
@@ -98,7 +94,9 @@ public class GameMain extends ApplicationAdapter {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);
-        minimapViewport.update(width, height, true);
+        // Set minimap viewpoint size and position it at the top left corner
+        minimapViewport.update(width / Constants.MINIMAP_SCALE, height / Constants.MINIMAP_SCALE, true);
+        minimapViewport.setScreenPosition(0, height - minimapViewport.getScreenHeight());
     }
 
     @Override
@@ -112,36 +110,5 @@ public class GameMain extends ApplicationAdapter {
 
     public Player getPlayer() {
         return player;
-    }
-
-    private static class MinimapViewport extends ScalingViewport {
-        private final float widthRatio;
-        private final float heightRatio;
-
-        public MinimapViewport(Scaling scaling, float worldWidth, float worldHeight, float widthRatio,
-                float heightRatio, Camera camera) {
-            super(scaling, worldWidth, worldHeight, camera);
-            this.widthRatio = widthRatio;
-            this.heightRatio = heightRatio;
-        }
-
-        @Override
-        public void update(int width, int height, boolean centerCamera) {
-            int windowWidth;
-            int windowHeight;
-
-            float ratio = (float) Constants.WIDTH / Constants.HEIGHT;
-            float actualRatio = (float) width / height;
-            if (ratio < actualRatio) {
-                windowHeight = MathUtils.round(height / heightRatio);
-                windowWidth = MathUtils.round(windowHeight * ratio);
-
-            } else {
-                windowWidth = MathUtils.round(width / widthRatio);
-                windowHeight = MathUtils.round(windowWidth / ratio);
-            }
-
-            setScreenBounds(0, height - windowHeight, windowWidth, windowHeight);
-        }
     }
 }
