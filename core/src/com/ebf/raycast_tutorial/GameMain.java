@@ -3,14 +3,17 @@ package com.ebf.raycast_tutorial;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class GameMain extends ApplicationAdapter {
 
@@ -20,9 +23,9 @@ public class GameMain extends ApplicationAdapter {
     private Player player;
     private RayCasting rayCasting;
 
-    private FillViewport viewport;
+    private Viewport viewport;
     private OrthographicCamera camera;
-    private ScalingViewport viewport2;
+    private Viewport minimapViewport;
 
     private ShapeRenderer renderer;
 
@@ -39,8 +42,8 @@ public class GameMain extends ApplicationAdapter {
 
         viewport = new FillViewport(Constants.WIDTH, Constants.HEIGHT, camera);
 
-        viewport2 = new ScalingViewport(Scaling.stretch, Constants.WIDTH, Constants.HEIGHT, camera);
-        viewport2.setScreenBounds(0, 0, Constants.WIDTH / 5, Constants.HEIGHT / 5);
+        minimapViewport = new MinimapViewport(Scaling.stretch, Constants.WIDTH, Constants.HEIGHT,
+                Constants.MINIMAP_WIDTH_RATIO, Constants.MINIMAP_HEIGHT_RATIO, camera);
 
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
@@ -71,8 +74,8 @@ public class GameMain extends ApplicationAdapter {
         // Draw minimap
         // Note, that we do ray casting twice
 
-        viewport2.apply();
-        renderer.setProjectionMatrix(viewport2.getCamera().combined);
+        minimapViewport.apply();
+        renderer.setProjectionMatrix(minimapViewport.getCamera().combined);
 
         renderer.begin(ShapeType.Filled);
 
@@ -95,10 +98,7 @@ public class GameMain extends ApplicationAdapter {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);
-        // TODO: Try to do something about this.. Doesn't look right
-        // FIXME: Move to the top left corner
-        viewport2.update(width, height, true);
-        viewport2.setScreenBounds(0, 0, Constants.WIDTH / 5, Constants.HEIGHT / 5);
+        minimapViewport.update(width, height, true);
     }
 
     @Override
@@ -112,5 +112,36 @@ public class GameMain extends ApplicationAdapter {
 
     public Player getPlayer() {
         return player;
+    }
+
+    private static class MinimapViewport extends ScalingViewport {
+        private final float widthRatio;
+        private final float heightRatio;
+
+        public MinimapViewport(Scaling scaling, float worldWidth, float worldHeight, float widthRatio,
+                float heightRatio, Camera camera) {
+            super(scaling, worldWidth, worldHeight, camera);
+            this.widthRatio = widthRatio;
+            this.heightRatio = heightRatio;
+        }
+
+        @Override
+        public void update(int width, int height, boolean centerCamera) {
+            int windowWidth;
+            int windowHeight;
+
+            float ratio = (float) Constants.WIDTH / Constants.HEIGHT;
+            float actualRatio = (float) width / height;
+            if (ratio < actualRatio) {
+                windowHeight = MathUtils.round(height / heightRatio);
+                windowWidth = MathUtils.round(windowHeight * ratio);
+
+            } else {
+                windowWidth = MathUtils.round(width / widthRatio);
+                windowHeight = MathUtils.round(windowWidth / ratio);
+            }
+
+            setScreenBounds(0, height - windowHeight, windowWidth, windowHeight);
+        }
     }
 }

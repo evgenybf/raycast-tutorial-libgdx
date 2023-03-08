@@ -9,6 +9,9 @@ public class Constants {
     public static final int WIDTH = 1600;
     public static final int HEIGHT = 900;
     public static final int CELL_SIZE = 100;
+    public static final int MINIMAP_HEIGHT_RATIO = 3;
+    public static final int MINIMAP_WIDTH_RATIO = 3;
+
 
     public static final int HALF_WIDTH = WIDTH / 2;
     public static final int HALF_HEIGHT = HEIGHT / 2;
