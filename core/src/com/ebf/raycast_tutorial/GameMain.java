@@ -7,8 +7,10 @@ import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 public class GameMain extends ApplicationAdapter {
 
@@ -21,8 +23,11 @@ public class GameMain extends ApplicationAdapter {
     private FitViewport viewport;
     private ShapeRenderer renderer;
 
-    private boolean map2dDisplayed = true;
-    private boolean map3dDisplayed = true;
+    private boolean mapDisplayed = true;
+
+    private ScalingViewport viewport2;
+
+    private OrthographicCamera camera;
 
     public GameMain() {
         fpsLogger = new FPSLogger();
@@ -30,10 +35,12 @@ public class GameMain extends ApplicationAdapter {
 
     @Override
     public void create() {
-        OrthographicCamera camera = new OrthographicCamera();
+        camera = new OrthographicCamera();
         camera.setToOrtho(true, Constants.WIDTH, Constants.HEIGHT);
 
         viewport = new FitViewport(Constants.WIDTH, Constants.HEIGHT, camera);
+        viewport2 = new ScalingViewport(Scaling.stretch, Constants.WIDTH, Constants.HEIGHT, camera);
+        viewport2.setScreenBounds(0, 0, Constants.WIDTH / 5, Constants.HEIGHT / 5);
 
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
@@ -52,19 +59,27 @@ public class GameMain extends ApplicationAdapter {
         player.update(delta);
 
         ScreenUtils.clear(0, 0, 0, delta);
-//		Gdx.gl.glClearColor(0, 0, 0, 1);
-//		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // Draw the 3d maze
+        viewport.apply();
+        renderer.setProjectionMatrix(viewport.getCamera().combined);
+
+        renderer.begin(ShapeType.Filled);
+        rayCasting.render(renderer, false);
+        renderer.end();
+
+        // Draw minimap
+        // Note, that we do ray casting twice
+
+        viewport2.apply();
+        renderer.setProjectionMatrix(viewport.getCamera().combined);
 
         renderer.begin(ShapeType.Filled);
 
-        if (map2dDisplayed) {
+        if (mapDisplayed) {
             map.render(renderer);
-        }
-
-        rayCasting.render(renderer);
-
-        if (map2dDisplayed) {
             player.render(renderer);
+            rayCasting.render(renderer, true);
         }
 
         renderer.end();
@@ -73,23 +88,17 @@ public class GameMain extends ApplicationAdapter {
             Gdx.app.exit();
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            if (map2dDisplayed && map3dDisplayed) {
-                map3dDisplayed = false;
-            } else if (map2dDisplayed) {
-                map2dDisplayed = false;
-                map3dDisplayed = true;
-            } else {
-                map2dDisplayed = true;
-                map3dDisplayed = true;
-            }
+            mapDisplayed = !mapDisplayed;
         }
     }
 
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);
-        renderer.setProjectionMatrix(viewport.getCamera().combined);
-        renderer.setAutoShapeType(true);
+        // TODO: Try to do something about this.. Doesn't look right
+        // FIXME: Move to the top left corner
+        viewport2.update(width, height, true);
+        viewport2.setScreenBounds(0, 0, Constants.WIDTH / 5, Constants.HEIGHT / 5);
     }
 
     @Override
@@ -103,13 +112,5 @@ public class GameMain extends ApplicationAdapter {
 
     public Player getPlayer() {
         return player;
-    }
-
-    public boolean isMap3dDisplayed() {
-        return map3dDisplayed;
-    }
-
-    public boolean isMap2dDisplayed() {
-        return map2dDisplayed;
     }
 }

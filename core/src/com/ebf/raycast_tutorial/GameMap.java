@@ -22,11 +22,9 @@ public class GameMap {
     };
     // @formatter:on
 
-    private final GameMain game;
     private final Map<GridPoint2, Integer> wordMap;
 
     public GameMap(GameMain game) {
-        this.game = game;
         this.wordMap = new HashMap<GridPoint2, Integer>();
         initializeWorldMap();
     }
@@ -43,6 +41,9 @@ public class GameMap {
     }
 
     public void render(ShapeRenderer renderer) {
+        renderer.setColor(Color.BLACK);
+        // FIXME: how to get the size of viewport / inner screen
+        renderer.rect(0, 0, 10000, 10000);
         renderer.setColor(Color.DARK_GRAY);
         for (Map.Entry<GridPoint2, Integer> entry : wordMap.entrySet()) {
             // TODO: line thickness

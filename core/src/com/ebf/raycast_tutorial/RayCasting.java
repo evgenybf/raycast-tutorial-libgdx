@@ -12,7 +12,7 @@ public class RayCasting {
         this.game = game;
     }
 
-    void render(ShapeRenderer renderer) {
+    void render(ShapeRenderer renderer, boolean mapMode) {
         Vector2 pos = game.getPlayer().getPos();
 
         float ox = pos.x;
@@ -89,7 +89,7 @@ public class RayCasting {
                 depth = depthHor;
             }
 
-            if (game.isMap2dDisplayed()) {
+            if (mapMode) {
                 // Draw 2d projection
                 renderer.setColor(Color.YELLOW);
                 renderer.rectLine(Constants.CELL_SIZE * ox, Constants.CELL_SIZE * oy,
@@ -103,7 +103,7 @@ public class RayCasting {
             // projection
             float proj_height = Constants.SCREEN_DIST / (depth + 0.0001f);
 
-            if (game.isMap3dDisplayed()) {
+            if (!mapMode) {
                 // Draw walls
                 float color_comp = 1 / (1 + (float) Math.pow(depth, 5) * 0.0002f);
                 renderer.setColor(color_comp, color_comp, color_comp, 1);
