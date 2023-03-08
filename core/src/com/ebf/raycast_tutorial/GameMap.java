@@ -42,8 +42,7 @@ public class GameMap {
 
     public void render(ShapeRenderer renderer) {
         renderer.setColor(Color.BLACK);
-        // FIXME: how to get the size of viewport / inner screen
-        renderer.rect(0, 0, 10000, 10000);
+        renderer.rect(0, 0, Constants.WIDTH, Constants.HEIGHT);
         renderer.setColor(Color.DARK_GRAY);
         for (Map.Entry<GridPoint2, Integer> entry : wordMap.entrySet()) {
             // TODO: line thickness
